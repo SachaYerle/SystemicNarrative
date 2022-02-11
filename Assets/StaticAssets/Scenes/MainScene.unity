@@ -525,7 +525,7 @@ MeshRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1491156523
-  m_SortingLayer: 2
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!224 &851452465
@@ -592,10 +592,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7d4aa913fca41847b8eb5e94461d5b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nbLocation: 10
+  nbLocation: 15
   matriceSize: 5
   matriceCellSizeWidth: 3
   matriceCellSizeHeight: 1.67
+  nbPathMin: 3
 --- !u!1 &1973434268
 GameObject:
   m_ObjectHideFlags: 0

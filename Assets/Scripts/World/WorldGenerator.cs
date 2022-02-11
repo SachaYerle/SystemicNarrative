@@ -8,18 +8,20 @@ public class WorldGenerator : MonoBehaviour
     [Range(0, 8)] public int matriceSize = 6;
     public float matriceCellSizeWidth = 2;
     public float matriceCellSizeHeight = 2;
+    public int nbPathMin = 2;
     Vector2 matriceTotalSize => new Vector2(matriceCellSizeWidth, matriceCellSizeHeight) * matriceSize;
 
     string[] cityNames = null;
 
     List<WorldPoint> allWorlsPoints = new List<WorldPoint>();
-    
+    List<WorldPathData> allWorlsPathDatas = new List<WorldPathData>();
+
     string[] GetCityNames()
     {
         if (cityNames != null) return cityNames;
         cityNames = PrefabLink.D.CityNames.text.Split('\n');
         return cityNames;
-    } 
+    }
 
     private void Start()
     {
@@ -53,6 +55,56 @@ public class WorldGenerator : MonoBehaviour
             wl.transform.position = allPossiblePoint[i];
             wl.InitWorldLocation(possibleCityNames[i]);
             allWorlsPoints.Add(wl);
+        }
+
+        for (int i = 0; i < allWorlsPoints.Count; i++)
+        {
+            WorldPoint wp = allWorlsPoints[i];
+            for (int j = i + 1; j < allWorlsPoints.Count; j++)
+            {
+                WorldPoint wpAimed = allWorlsPoints[j];
+                WorldPathData path = new WorldPathData()
+                {
+                    pathEndA = wp,
+                    pathEndB = wpAimed,
+                    pathLength = Vector2.Distance(wp.transform.position, wpAimed.transform.position)
+                };
+                wp.paths.Add(path);
+                wpAimed.paths.Add(path);
+                allWorlsPathDatas.Add(path);
+            }
+            wp.paths.Sort(delegate(WorldPathData a, WorldPathData b)
+            {
+                if (a.pathLength < b.pathLength) return -1;
+                if (a.pathLength > b.pathLength) return 1;
+                return 0;
+            });
+            for (int pathIndex = 0; pathIndex < Mathf.Min(nbPathMin, wp.paths.Count); pathIndex++)
+            {
+                WorldPathData path = wp.paths[pathIndex];
+                path.Available = true;
+            }
+        }
+
+        for (int i = 0; i < allWorlsPoints.Count; i++)
+        {
+            WorldPoint wp = allWorlsPoints[i];
+            foreach (var path in wp.paths)
+            {
+                if (path.Available)
+                {
+                    wp.validPaths.Add(path);
+                }
+            }
+        }
+
+        foreach (var pathData in allWorlsPathDatas)
+        {
+            if (pathData.Available)
+            {
+                pathData.wp = Instantiate(PrefabLink.D.WorldPathPrefab, worldGo.transform);
+                pathData.wp.wpD = pathData;
+            }
         }
     }
 

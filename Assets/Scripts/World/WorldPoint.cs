@@ -9,10 +9,14 @@ public class WorldPoint : WorldLocation
     // --- VISUAL
     public TextMeshPro nameText = null;
     public TextMeshPro factionText = null;
+    public TextMeshPro nbInText = null;
     public SpriteRenderer mainSpriteRender = null;
     public GameObject houseRoot = null;
 
     public Faction faction { get; protected set; }
+
+    [HideInInspector] public List<WorldPathData> paths = new List<WorldPathData>();
+    [HideInInspector] public List<WorldPathData> validPaths = new List<WorldPathData>();
 
 
     private void Start()
@@ -39,6 +43,11 @@ public class WorldPoint : WorldLocation
 
     }
 
+    private void Update()
+    {
+        nbInText.text = EntitiesIn.Count.ToString();
+    }
+
 
     private void InitPopulation()
     {
@@ -47,7 +56,8 @@ public class WorldPoint : WorldLocation
         int nbEntity = UnityEngine.Random.Range(1, 4);
         for (int i = 0; i < nbEntity; i++)
         {
-            EntitiesIn.Add(EntityGenerator.GenerateEntity(faction, this));
+            Entity entity = EntityGenerator.GenerateEntity(faction, this);
+            if (!EntitiesIn.Contains(entity)) EntitiesIn.Add(entity);
         }
     }
 

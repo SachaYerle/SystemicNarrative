@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: PrefabData
   m_EditorClassIdentifier: 
   WorldPointPrefab: {fileID: 3800210461512935640, guid: de7e35b3fb654bc4eaa0c6a514415a57, type: 3}
+  WorldPathPrefab: {fileID: 5760035946139145828, guid: b834c3e37ed814b459643869963770d5, type: 3}
   CityNames: {fileID: 4900000, guid: f334bd25e3b06294bbc95edd9531daf3, type: 3}
   EntityNames: {fileID: 4900000, guid: 3512998bd5905e0488c5e86f9df4a4aa, type: 3}
   FactionNames: {fileID: 4900000, guid: 9d1e18187536e2c4d80d98861f9606d8, type: 3}

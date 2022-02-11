@@ -16,7 +16,8 @@ public class Entity
         this.faction = faction;
         WorldSimulator.OnTick += DoTick;
         currLocation = location;
-        currLocation.EntitiesIn.Add(this);
+        if (!currLocation.EntitiesIn.Contains(this))
+            currLocation.EntitiesIn.Add(this);
     }
 
     private void DoTick(int turn)
