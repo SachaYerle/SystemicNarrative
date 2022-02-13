@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class WorldGenerator : MonoBehaviour
@@ -13,7 +14,7 @@ public class WorldGenerator : MonoBehaviour
 
     string[] cityNames = null;
 
-    List<WorldPoint> allWorlsPoints = new List<WorldPoint>();
+    static List<WorldPoint> allWorlsPoints = new List<WorldPoint>();
     List<WorldPathData> allWorlsPathDatas = new List<WorldPathData>();
 
     string[] GetCityNames()
@@ -26,6 +27,13 @@ public class WorldGenerator : MonoBehaviour
     private void Start()
     {
         GenerateWorld();
+    }
+
+    public static WorldPoint GetRandomDestination(WorldPoint currLocation)
+    {
+        List<WorldPoint> possiblePoints = new List<WorldPoint>(allWorlsPoints);
+        possiblePoints.Remove(currLocation);
+        return possiblePoints[Random.Range(0, possiblePoints.Count)];
     }
 
     public void GenerateWorld()
@@ -73,7 +81,7 @@ public class WorldGenerator : MonoBehaviour
                 wpAimed.paths.Add(path);
                 allWorlsPathDatas.Add(path);
             }
-            wp.paths.Sort(delegate(WorldPathData a, WorldPathData b)
+            wp.paths.Sort(delegate (WorldPathData a, WorldPathData b)
             {
                 if (a.pathLength < b.pathLength) return -1;
                 if (a.pathLength > b.pathLength) return 1;
@@ -106,6 +114,94 @@ public class WorldGenerator : MonoBehaviour
                 pathData.wp.wpD = pathData;
             }
         }
+    }
+
+    static Dictionary<WorldPoint, WorldPathfindData> nodesPaths = new Dictionary<WorldPoint, WorldPathfindData>();
+    static List<WorldPathfindData> sortedDatas = new List<WorldPathfindData>();
+    public static bool GetPath(WorldPoint start, WorldPoint destination, out List<WorldPoint> journey)
+    {
+        nodesPaths = new Dictionary<WorldPoint, WorldPathfindData>();
+        sortedDatas = new List<WorldPathfindData>();
+        journey = new List<WorldPoint>();
+        WorldPoint currPoint = start;
+        WorldPathfindData startData = new WorldPathfindData(currPoint, null, 0, (start.transform.position - destination.transform.position).sqrMagnitude);
+        nodesPaths.Add(currPoint, startData);
+        sortedDatas.Add(startData);
+        int iteration = 0;
+        while (true)
+        {
+            WorldPathfindData data = nodesPaths[currPoint];
+            data.locked = true;
+            foreach (WorldPathData path in currPoint.validPaths)
+            {
+                WorldPoint aimed = currPoint == path.pathEndA ? path.pathEndB : path.pathEndA;
+                //Debug.Log("AIMED : " + aimed.name);
+                float distWithCurr = (aimed.transform.position - currPoint.transform.position).sqrMagnitude;
+                float currPathDistToAimed = data.distFromPath + distWithCurr;
+                if (nodesPaths.ContainsKey(aimed))
+                {
+                    WorldPathfindData existingData = nodesPaths[aimed];
+                    if (existingData.locked) continue;
+                    if (currPathDistToAimed < existingData.distFromPath)
+                    {
+                        existingData.camesFrom = currPoint;
+                        existingData.distFromPath = currPathDistToAimed;
+                    }
+                }
+                else
+                {
+                    WorldPathfindData newData = new WorldPathfindData(aimed, currPoint, currPathDistToAimed, (aimed.transform.position - destination.transform.position).sqrMagnitude);
+                    nodesPaths.Add(aimed, newData);
+                    sortedDatas.Add(newData);
+                }
+                if (aimed == destination)
+                {
+                    // DO PATH
+                    WorldPoint currFinalPathPoint = aimed;
+                    while (true)
+                    {
+                        journey.Add(currFinalPathPoint);
+                        WorldPathfindData pathData = nodesPaths[currFinalPathPoint];
+                        currFinalPathPoint = pathData.camesFrom;
+                        if (currFinalPathPoint == null) break;
+                    }
+                    journey.Reverse();
+                    return true;
+                }
+            }
+            sortedDatas.Sort(delegate (WorldPathfindData a, WorldPathfindData b)
+            {
+                if (a.locked) return 1;
+                if (b.locked) return -1;
+                if (a.AddedValue < b.AddedValue) return -1;
+                if (a.AddedValue > b.AddedValue) return 1;
+                return 0;
+            });
+            if (sortedDatas[0].locked) return false;
+            else currPoint = sortedDatas[0].point;
+            iteration++;
+        }
+    }
+
+
+    public class WorldPathfindData
+    {
+        public WorldPoint point;
+        public WorldPoint camesFrom;
+        public float distFromPath;
+        public float distToTheEnd;
+        public float addedFromPastPath;
+        public bool locked = false;
+
+        public WorldPathfindData(WorldPoint point, WorldPoint camesFrom, float distFromPath, float distToTheEnd)
+        {
+            this.point = point;
+            this.camesFrom = camesFrom;
+            this.distFromPath = distFromPath;
+            this.distToTheEnd = distToTheEnd;
+        }
+
+        public float AddedValue => distFromPath + distToTheEnd;
     }
 
     private void OnDrawGizmosSelected()
