@@ -14,48 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   WorldPointPrefab: {fileID: 3800210461512935640, guid: de7e35b3fb654bc4eaa0c6a514415a57, type: 3}
   WorldPathPrefab: {fileID: 5760035946139145828, guid: b834c3e37ed814b459643869963770d5, type: 3}
+  EntityPrefab: {fileID: 790992166396061648, guid: b25b25c2cec7a3f419fb945afd00826d, type: 3}
   CityNames: {fileID: 4900000, guid: f334bd25e3b06294bbc95edd9531daf3, type: 3}
   EntityNames: {fileID: 4900000, guid: 3512998bd5905e0488c5e86f9df4a4aa, type: 3}
   FactionNames: {fileID: 4900000, guid: 9d1e18187536e2c4d80d98861f9606d8, type: 3}
-  FoodGainCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.20146173
-      inSlope: 3.982076
-      outSlope: 3.982076
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.18559119
-      value: 0.94049996
-      inSlope: 0.32122093
-      outSlope: 0.32122093
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.101281516
-    - serializedVersion: 3
-      time: 0.85294896
-      value: 0.9184478
-      inSlope: -0.36475042
-      outSlope: -0.36475042
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.089780375
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0.2
-      inSlope: -4.8857036
-      outSlope: -4.8857036
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4

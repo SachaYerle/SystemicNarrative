@@ -50,3 +50,6 @@ TagManager:
   - name: WorldPointUi
     uniqueID: 2803810773
     locked: 0
+  - name: Entity
+    uniqueID: 2992081389
+    locked: 0

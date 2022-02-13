@@ -57,7 +57,6 @@ public class WorldPoint : WorldLocation
         for (int i = 0; i < nbEntity; i++)
         {
             Entity entity = EntityGenerator.GenerateEntity(faction, this);
-            if (!EntitiesIn.Contains(entity)) EntitiesIn.Add(entity);
         }
     }
 

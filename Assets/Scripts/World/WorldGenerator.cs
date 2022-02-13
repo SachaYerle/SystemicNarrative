@@ -135,7 +135,6 @@ public class WorldGenerator : MonoBehaviour
             foreach (WorldPathData path in currPoint.validPaths)
             {
                 WorldPoint aimed = currPoint == path.pathEndA ? path.pathEndB : path.pathEndA;
-                //Debug.Log("AIMED : " + aimed.name);
                 float distWithCurr = (aimed.transform.position - currPoint.transform.position).sqrMagnitude;
                 float currPathDistToAimed = data.distFromPath + distWithCurr;
                 if (nodesPaths.ContainsKey(aimed))
@@ -166,6 +165,7 @@ public class WorldGenerator : MonoBehaviour
                         if (currFinalPathPoint == null) break;
                     }
                     journey.Reverse();
+                    journey.RemoveAt(0);
                     return true;
                 }
             }
