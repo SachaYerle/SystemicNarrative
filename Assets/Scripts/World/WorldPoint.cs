@@ -36,6 +36,7 @@ public class WorldPoint : WorldLocation
 
     public void InitWorldLocation(string locationName)
     {
+        this.locationName = locationName;
         gameObject.name = locationName;
         nameText.text = locationName;
 
@@ -58,6 +59,7 @@ public class WorldPoint : WorldLocation
         {
             Entity entity = EntityGenerator.GenerateEntity(faction, this);
         }
+        EventHandler.EntityMeeting(EntitiesIn, this, $"{ EventHandler.GetEnumerationOfEntity(EntitiesIn)} has spawned in the same town");
     }
 
     private void SetFaction(Faction faction)

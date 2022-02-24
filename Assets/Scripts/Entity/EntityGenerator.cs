@@ -56,18 +56,18 @@ public class EntityGenerator : MonoBehaviour
 
                     if (mov.goingToA != movTwo.goingToA)
                     {
-                        CheckCrossInPath(mov, movTwo);
+                        CheckCrossInPath(mov, movTwo, path);
                     }
                     else
                     {
-                        CheckPassInPath(mov, movTwo);
+                        CheckPassInPath(mov, movTwo, path);
                     }
                 }
             }
         }
     }
 
-    private void CheckPassInPath(PathMovement mov, PathMovement movTwo)
+    private void CheckPassInPath(PathMovement mov, PathMovement movTwo, WorldPathData path)
     {
         PathMovement fastest = mov.moveValue >= movTwo.moveValue ? mov : movTwo;
         PathMovement slowest = fastest == movTwo ? mov : movTwo;
@@ -76,16 +76,16 @@ public class EntityGenerator : MonoBehaviour
         {
             if (fastest.moveValue == slowest.moveValue)
             {
-                Debug.Log($"{fastest.ent.entityName} travelled with {slowest.ent.entityName}");
+                EventHandler.EntityMeeting(new List<Entity>() { fastest.ent, slowest.ent }, path.wp, $"{fastest.ent.entityName} travelled with {slowest.ent.entityName}");
             }
             else
             {
-                Debug.Log($"{fastest.ent.entityName} passed beside {slowest.ent.entityName}");
+                EventHandler.EntityMeeting(new List<Entity>() { fastest.ent, slowest.ent }, path.wp, $"{fastest.ent.entityName} passed beside {slowest.ent.entityName}");
             }
         }
     }
 
-    private void CheckCrossInPath(PathMovement mov, PathMovement movTwo)
+    private void CheckCrossInPath(PathMovement mov, PathMovement movTwo, WorldPathData path)
     {
         PathMovement theOneGoingToA = mov.goingToA ? mov : movTwo;
         PathMovement theOneGoingToB = mov.goingToA ? movTwo : mov;
@@ -98,7 +98,7 @@ public class EntityGenerator : MonoBehaviour
 
         if (pastValueIsInZone != endValueIsInZone)
         {
-            Debug.Log($"{theOneGoingToA.ent.entityName} crossed with {theOneGoingToB.ent.entityName}");
+            EventHandler.EntityMeeting(new List<Entity>() { theOneGoingToA.ent, theOneGoingToB.ent }, path.wp, $"{theOneGoingToA.ent.entityName} crossed with {theOneGoingToB.ent.entityName}");
         }
     }
 

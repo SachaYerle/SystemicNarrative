@@ -6,6 +6,9 @@ using UnityEngine;
 public class Entity
 {
 
+    public static int NbEntity = 0;
+    public bool MainCharacter { get; private set; }
+
     public EntityVisual ev = null;
 
     public string entityName = "Default_Name";
@@ -25,6 +28,14 @@ public class Entity
         ev.ent = this;
         ResetWantsToLeave();
         speed = UnityEngine.Random.Range(.3f, .7f);
+
+
+        if (NbEntity == 0)
+        {
+            MainCharacter = true;
+            Debug.Log($"{entityName} is the main character");
+        }
+        NbEntity++;
     }
 
     public WorldPoint destination = null;
@@ -42,6 +53,10 @@ public class Entity
 
     public static Dictionary<WorldPathData, List<PathMovement>> allPathMovements = new Dictionary<WorldPathData, List<PathMovement>>();
     public static List<WorldPathData> pathToCheck = new List<WorldPathData>();
+
+    public Dictionary<Entity, List<EventKnowledge>> EventsPerEntity = new Dictionary<Entity, List<EventKnowledge>>();
+    public List<EventKnowledge> memory = new List<EventKnowledge>();
+    public List<Entity> entitiesKnown = new List<Entity>();
 
     private void DoTick(int turn)
     {
@@ -115,6 +130,7 @@ public class Entity
     {
         wantsToLeave = false;
         timeRemainingBeforeLeave = UnityEngine.Random.Range(3f, 15f);
+        if (MainCharacter) timeRemainingBeforeLeave = 3f;
     }
 
     private void ArrivedAtDestination()

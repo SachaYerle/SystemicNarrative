@@ -71,12 +71,7 @@ public class WorldGenerator : MonoBehaviour
             for (int j = i + 1; j < allWorlsPoints.Count; j++)
             {
                 WorldPoint wpAimed = allWorlsPoints[j];
-                WorldPathData path = new WorldPathData()
-                {
-                    pathEndA = wp,
-                    pathEndB = wpAimed,
-                    pathLength = Vector2.Distance(wp.transform.position, wpAimed.transform.position)
-                };
+                WorldPathData path = new WorldPathData(wp, wpAimed, Vector2.Distance(wp.transform.position, wpAimed.transform.position));
                 wp.paths.Add(path);
                 wpAimed.paths.Add(path);
                 allWorlsPathDatas.Add(path);

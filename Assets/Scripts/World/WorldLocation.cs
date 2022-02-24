@@ -6,4 +6,5 @@ public abstract class WorldLocation : MonoBehaviour
 {
     public List<Entity> EntitiesIn = new List<Entity>();
     public List<EntityGroup> EntityGroupsIn = new List<EntityGroup>();
+    public string locationName { get; protected set; }
 }

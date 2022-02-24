@@ -13,6 +13,7 @@ public class WorldPath : WorldLocation
 
     private void Start()
     {
+        locationName = wpD.locationName;
         Vector3 dif = wpD.pathEndB.transform.position - wpD.pathEndA.transform.position;
         transform.localScale = new Vector3(0.1f, dif.magnitude, 1);
         transform.up = dif;
@@ -31,4 +32,14 @@ public class WorldPathData
     public WorldPoint pathEndB = null;
     public float pathLength = 0;
     public WorldPath wp = null;
+    public string locationName { get; private set; }
+
+    public WorldPathData(WorldPoint pathEndA, WorldPoint pathEndB, float pathLength)
+    {
+        this.pathEndA = pathEndA;
+        this.pathEndB = pathEndB;
+        this.pathLength = pathLength;
+
+        locationName = $"the path between {pathEndA.locationName} and {pathEndB.locationName}";
+    }
 }
