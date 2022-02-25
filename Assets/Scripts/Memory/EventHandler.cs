@@ -27,7 +27,7 @@ public static class EventHandler
     {
         foreach (var habitant in worldPoint.EntitiesIn)
         {
-            if (!subjects.Contains(habitant)) continue;
+            if (subjects.Contains(habitant)) continue;
             EntitySawSomeoneLeftWorldPoint(habitant, subjects, worldPoint, cause);
             foreach (var subject in subjects)
             {

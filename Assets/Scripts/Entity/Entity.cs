@@ -147,9 +147,20 @@ public class Entity
 
     public static void MoveEntity(WorldLocation from, WorldLocation to, Entity ent)
     {
-        if (from != null) from.EntitiesIn.Remove(ent);
+        if (from != null)
+        {
+            WorldPoint wp = from as WorldPoint;
+            if (wp != null) EventHandler.EntityLeftWorldPoint(new List<Entity>() { ent }, wp, "");
+            from.EntitiesIn.Remove(ent);
+        }
         ent.currLocation = to;
-        if (to != null) to.EntitiesIn.Add(ent);
+        if (to != null)
+        {
+            to.EntitiesIn.Add(ent);
+            WorldPoint wp = to as WorldPoint;
+            if (wp != null) EventHandler.EntityArrivedAtWorldPoint(new List<Entity>() { ent }, wp, "");
+        }
+
     }
 }
 
