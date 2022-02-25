@@ -18,10 +18,12 @@ public class WorldSimulator : MonoBehaviour
     public float automaticTurnTick = 1;
     float timeSinceLast;
 
+    public bool fastMod = false;
+
     void Update()
     {
         timeSinceLast = Mathf.MoveTowards(timeSinceLast, 0, Time.deltaTime);
-        if (Input.GetKeyDown(KeyCode.Space) || timeSinceLast == 0)
+        if (Input.GetKeyDown(KeyCode.Space) || timeSinceLast == 0 || fastMod)
         {
             turn++;
             OnTickReset?.Invoke(turn);

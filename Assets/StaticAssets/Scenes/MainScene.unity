@@ -170,6 +170,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   turnText: {fileID: 851452463}
   automaticTurnTick: 0.5
+  fastMod: 1
 --- !u!1 &176012150
 GameObject:
   m_ObjectHideFlags: 0

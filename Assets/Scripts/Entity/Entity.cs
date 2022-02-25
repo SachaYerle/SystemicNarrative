@@ -74,15 +74,22 @@ public class Entity
                 {
                     journey = _journey;
                 }
+                else
+                {
+                    journey = null;
+                }
             }
-            if (currPath == null)
+            if (journey != null)
             {
-                StartPath(journey[0]);
-            }
-            else
-            {
-                if (pathPercentage == 1) ArriveAtEndOfPath();
-                else MoveForward();
+                if (currPath == null)
+                {
+                    StartPath(journey[0]);
+                }
+                else
+                {
+                    if (pathPercentage == 1) ArriveAtEndOfPath();
+                    else MoveForward();
+                }
             }
         }
     }

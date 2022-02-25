@@ -16,7 +16,7 @@ public class EntityGenerator : MonoBehaviour
         }
         int selectedIndex = Random.Range(0, possibleNames.Count);
         string selectedName = possibleNames[selectedIndex];
-        possibleNames.RemoveAt(selectedIndex);
+        possibleNames.Remove(selectedName);
         return selectedName;
     }
 
