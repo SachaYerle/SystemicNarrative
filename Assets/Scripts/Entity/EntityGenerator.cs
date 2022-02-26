@@ -45,8 +45,6 @@ public class EntityGenerator : MonoBehaviour
     private void ProcesEncounter(int turn)
     {
         // TODO : Handle three person encounter
-        // TODO : Handle pass
-        // TODO : Handle cross
         foreach (var path in Entity.pathToCheck)
         {
             List<PathMovement> movements = Entity.allPathMovements[path];

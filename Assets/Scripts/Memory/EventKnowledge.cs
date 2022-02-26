@@ -25,18 +25,23 @@ public class EventKnowledge
 
     public override string ToString()
     {
-        string eventText = EventHandler.GetEnumerationOfEntity(subjects) + " " + action.ToString() + " ";
+        string eventText = EventHandler.GetEnumerationOfEntity(subjects) + " " + action.ToString();
 
-        eventText += action switch
+        string addedTarget = action switch
         {
             EventAction.Met => EventHandler.GetEnumerationOfEntity(receiverEntity),
             EventAction.WasAt => location.locationName,
             EventAction.WasGoingTo => receiverWorldPoint.locationName,
             EventAction.Killed => EventHandler.GetEnumerationOfEntity(receiverEntity),
+            EventAction.WasKilledBY => EventHandler.GetEnumerationOfEntity(receiverEntity),
             EventAction.ArrivedAt => receiverWorldPoint.locationName,
             EventAction.Left => receiverWorldPoint.locationName,
+            EventAction.WasDead => "",
+            EventAction.Undefined => "UNDEFINED",
             _ => "UNDEFINED",
         };
+
+        if (addedTarget != "") eventText += " " + addedTarget;
 
         eventText += $" at turn {turn}";
 
@@ -54,6 +59,8 @@ public enum EventAction
     WasAt,
     WasGoingTo,
     Killed,
+    WasKilledBY,
     ArrivedAt,
-    Left
+    Left,
+    WasDead
 }

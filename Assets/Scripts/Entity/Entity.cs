@@ -7,7 +7,9 @@ public class Entity
 {
 
     public static int NbEntity = 0;
-    public bool MainCharacter { get; private set; }
+    public static int DeadEntity = 0;
+    public static int RemainingEntity => NbEntity - DeadEntity;
+    public static Entity Killer { get; private set; }
 
     public EntityVisual ev = null;
 
@@ -16,6 +18,8 @@ public class Entity
 
 
     public WorldLocation currLocation = null;
+
+    public bool Alive { get; private set; }
 
     public Entity(string entityName, Faction faction, WorldLocation location, EntityVisual ev)
     {
@@ -28,18 +32,14 @@ public class Entity
         ev.ent = this;
         ResetWantsToLeave();
         speed = UnityEngine.Random.Range(.3f, .7f);
+        Alive = true;
 
-
-        if (NbEntity == 0)
-        {
-            MainCharacter = true;
-            Debug.Log($"{entityName} is the main character");
-        }
         NbEntity++;
     }
 
     public WorldPoint destination = null;
     public List<WorldPoint> journey = new List<WorldPoint>();
+
     public bool wantsToLeave = false;
     public WorldPathData currPath = null;
     public bool goingToA = true;
@@ -60,6 +60,23 @@ public class Entity
 
     private void DoTick(int turn)
     {
+        if (!Alive)
+        {
+            if (onPath)
+            {
+                PathMovement movement = new PathMovement(this, currPath, goingToA, distMadeOnPath, distMadeOnPath);
+                AddMovement(movement);
+            }
+            return;
+        }
+
+
+        if (Killer == null)
+        {
+            Killer = this;
+            Debug.Log($"{entityName} becomes a killer");
+        }
+
         if (!wantsToLeave)
         {
             timeRemainingBeforeLeave = Mathf.MoveTowards(timeRemainingBeforeLeave, 0, 1);
@@ -137,7 +154,6 @@ public class Entity
     {
         wantsToLeave = false;
         timeRemainingBeforeLeave = UnityEngine.Random.Range(3f, 15f);
-        if (MainCharacter) timeRemainingBeforeLeave = 3f;
     }
 
     private void ArrivedAtDestination()
@@ -161,6 +177,15 @@ public class Entity
             if (wp != null) EventHandler.EntityArrivedAtWorldPoint(new List<Entity>() { ent }, wp, "");
         }
 
+    }
+
+    public void Die()
+    {
+        if (!Alive) Debug.LogError("ISNT SUPPOSED TO TRIGGER");
+        Alive = false;
+        if (Killer == this) Killer = null;
+        DeadEntity++;
+        if (RemainingEntity == 1) Debug.LogError("ONLY ONE ENTITY LEFT");
     }
 }
 

@@ -23,6 +23,19 @@ public static class EventHandler
         EntityMeeting(worldPoint.EntitiesIn, worldPoint, cause);
     }
 
+    public static void EntityKillOther(Entity killer, Entity killed, WorldLocation wl, string cause)
+    {
+        var eK = GetEvent(new List<Entity>() { killer }, EventAction.Killed, wl, cause);
+        eK.receiverEntity = new List<Entity>() { killed };
+        AddEventToEntity(killed, eK);
+        AddEventToEntity(killer, eK);
+
+        eK = GetEvent(new List<Entity>() { killed }, EventAction.WasKilledBY, wl, cause);
+        eK.receiverEntity = new List<Entity>() { killer };
+        AddEventToEntity(killer, eK);
+        AddEventToEntity(killed, eK);
+    }
+
     public static void EntityLeftWorldPoint(List<Entity> subjects, WorldPoint worldPoint, string cause)
     {
         foreach (var habitant in worldPoint.EntitiesIn)
@@ -62,7 +75,7 @@ public static class EventHandler
         if (!subject.entitiesKnown.Contains(other))
             EntityFirstMetAnother(subject, other, location, cause);
         EntitySawAnother(subject, other, location, cause);
-        if (other.journey.Count > 0)
+        if (other.journey != null && other.journey.Count > 0)
             EntityWasGoingTo(subject, other, location, cause, other.journey[0]);
     }
 
@@ -70,12 +83,43 @@ public static class EventHandler
     {
         foreach (var subject in subjects)
         {
+            if (!subject.Alive) continue;
             foreach (var other in subjects)
             {
                 if (other == subject) continue;
-                EntityEncounter(subject, other, location, cause);
+
+                if (!other.Alive)
+                {
+                    EntitySawADeadBody(subject, other, location, cause);
+                }
+                else
+                {
+                    EntityEncounter(subject, other, location, cause);
+                }
             }
         }
+
+        for (int i = 0; i < subjects.Count; i++)
+        {
+            Entity subject = subjects[i];
+            if (!subject.Alive) continue;
+
+            for (int j = i + 1; j < subjects.Count; j++)
+            {
+                Entity other = subjects[j];
+                if (!other.Alive) continue;
+                WorldPoint wp = location as WorldPoint;
+                WorldPath path = location as WorldPath;
+                if (wp != null) EntityInteraction.EntityMeetInPoint(subject, other, wp);
+                if (path != null) EntityInteraction.EntityMeetInPath(subject, other, path.wpD);
+            }
+        }
+    }
+
+    private static void EntitySawADeadBody(Entity subject, Entity deadBody, WorldLocation location, string cause)
+    {
+        var eK = GetEvent(new List<Entity>() { deadBody }, EventAction.WasDead, location, cause);
+        AddEventToEntity(subject, eK);
     }
 
     private static void EntityWasGoingTo(Entity subject, Entity other, WorldLocation location, string cause, WorldPoint worldPoint)
@@ -91,7 +135,6 @@ public static class EventHandler
         eK.receiverEntity = new List<Entity>() { subject };
         subject.entitiesKnown.Add(other);
         AddEventToEntity(subject, eK);
-        if (subject.MainCharacter) Debug.Log("Person met = " + subject.entitiesKnown.Count + "/" + Entity.NbEntity);
     }
 
     private static void EntitySawAnother(Entity subject, Entity other, WorldLocation location, string cause)
@@ -111,8 +154,6 @@ public static class EventHandler
             if (subject.EventsPerEntity.ContainsKey(otherSubjects)) subject.EventsPerEntity[otherSubjects].Add(eK);
             else subject.EventsPerEntity.Add(otherSubjects, new List<EventKnowledge>() { eK });
         }
-
-        if (subject.MainCharacter) Debug.Log(eK.ToString());
     }
 
     public static string GetEnumerationOfEntity(List<Entity> entitiesIn)
