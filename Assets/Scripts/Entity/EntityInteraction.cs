@@ -4,11 +4,10 @@ public static class EntityInteraction
 {
     public static void EntityMeetInPath(Entity a, Entity b, WorldPathData wpd)
     {
-        Entity killerEntity = a == Entity.Killer ? a : (b == Entity.Killer ? b : null);
-        if (killerEntity != null)
+        float randomResult = Random.Range(0f, 1f);
+        if (randomResult < .01f)
         {
-            Entity otherEntity = a == killerEntity ? b : a;
-            EntityFight(a, b, wpd.wp, $"{killerEntity.entityName} was a killer and tried to kill {otherEntity.entityName}");
+            EntityFight(a, b, wpd.wp, $"{a.entityName} and {b.entityName} decided to fight");
         }
     }
 

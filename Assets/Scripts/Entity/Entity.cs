@@ -9,7 +9,6 @@ public class Entity
     public static int NbEntity = 0;
     public static int DeadEntity = 0;
     public static int RemainingEntity => NbEntity - DeadEntity;
-    public static Entity Killer { get; private set; }
 
     public EntityVisual ev = null;
 
@@ -54,8 +53,6 @@ public class Entity
     public static Dictionary<WorldPathData, List<PathMovement>> allPathMovements = new Dictionary<WorldPathData, List<PathMovement>>();
     public static List<WorldPathData> pathToCheck = new List<WorldPathData>();
 
-    public Dictionary<Entity, List<EventKnowledge>> EventsPerEntity = new Dictionary<Entity, List<EventKnowledge>>();
-    public List<EventKnowledge> memory = new List<EventKnowledge>();
     public List<Entity> entitiesKnown = new List<Entity>();
 
     private void DoTick(int turn)
@@ -68,13 +65,6 @@ public class Entity
                 AddMovement(movement);
             }
             return;
-        }
-
-
-        if (Killer == null)
-        {
-            Killer = this;
-            Debug.Log($"{entityName} becomes a killer");
         }
 
         if (!wantsToLeave)
@@ -183,7 +173,6 @@ public class Entity
     {
         if (!Alive) Debug.LogError("ISNT SUPPOSED TO TRIGGER");
         Alive = false;
-        if (Killer == this) Killer = null;
         DeadEntity++;
         if (RemainingEntity == 1) Debug.LogError("ONLY ONE ENTITY LEFT");
     }

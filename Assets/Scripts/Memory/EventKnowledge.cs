@@ -30,10 +30,9 @@ public class EventKnowledge
         string addedTarget = action switch
         {
             EventAction.Met => EventHandler.GetEnumerationOfEntity(receiverEntity),
-            EventAction.WasAt => location.locationName,
+            EventAction.Saw => EventHandler.GetEnumerationOfEntity(receiverEntity),
             EventAction.WasGoingTo => receiverWorldPoint.locationName,
             EventAction.Killed => EventHandler.GetEnumerationOfEntity(receiverEntity),
-            EventAction.WasKilledBY => EventHandler.GetEnumerationOfEntity(receiverEntity),
             EventAction.ArrivedAt => receiverWorldPoint.locationName,
             EventAction.Left => receiverWorldPoint.locationName,
             EventAction.WasDead => "",
@@ -45,9 +44,6 @@ public class EventKnowledge
 
         eventText += $" at turn {turn}";
 
-        if (action != EventAction.WasAt)
-            eventText += $" in {location.locationName}";
-
         return eventText;
     }
 }
@@ -56,10 +52,9 @@ public enum EventAction
 {
     Undefined,
     Met,
-    WasAt,
+    Saw,
     WasGoingTo,
     Killed,
-    WasKilledBY,
     ArrivedAt,
     Left,
     WasDead

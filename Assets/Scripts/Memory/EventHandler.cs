@@ -5,6 +5,15 @@ using UnityEngine;
 
 public static class EventHandler
 {
+    public static List<EventKnowledge> Events = new List<EventKnowledge>();
+    public static List<EntityEncouter> EntityEncouters = new List<EntityEncouter>();
+
+    public class EntityEncouter
+    {
+        public List<Entity> allEntities = new List<Entity>();
+        public List<EventKnowledge> Events = new List<EventKnowledge>();
+    }
+
     public static EventKnowledge GetEvent(List<Entity> subjects, EventAction eventAction, WorldLocation location, string cause)
     {
         return new EventKnowledge(subjects, eventAction, WorldSimulator.turn, location, cause);
@@ -29,11 +38,6 @@ public static class EventHandler
         eK.receiverEntity = new List<Entity>() { killed };
         AddEventToEntity(killed, eK);
         AddEventToEntity(killer, eK);
-
-        eK = GetEvent(new List<Entity>() { killed }, EventAction.WasKilledBY, wl, cause);
-        eK.receiverEntity = new List<Entity>() { killer };
-        AddEventToEntity(killer, eK);
-        AddEventToEntity(killed, eK);
     }
 
     public static void EntityLeftWorldPoint(List<Entity> subjects, WorldPoint worldPoint, string cause)
@@ -81,6 +85,26 @@ public static class EventHandler
 
     public static void EntityMeeting(List<Entity> subjects, WorldLocation location, string cause)
     {
+        List<Entity> aliveEntities = new List<Entity>();
+        List<Entity> deadEntities = new List<Entity>();
+
+        foreach (var subject in subjects)
+        {
+            if (subject.Alive) aliveEntities.Add(subject);
+            else deadEntities.Add(subject);
+        }
+
+        if (deadEntities.Count > 0)
+        {
+            EntitiesSawDeadBodies(aliveEntities, deadEntities, location, cause);
+        }
+
+        if (aliveEntities.Count > 1)
+        {
+
+        }
+
+
         foreach (var subject in subjects)
         {
             if (!subject.Alive) continue;
@@ -131,29 +155,35 @@ public static class EventHandler
 
     private static void EntityFirstMetAnother(Entity subject, Entity other, WorldLocation location, string cause)
     {
-        var eK = GetEvent(new List<Entity>() { other }, EventAction.Met, location, cause);
-        eK.receiverEntity = new List<Entity>() { subject };
+        var eK = GetEvent(new List<Entity>() { subject }, EventAction.Met, location, cause);
+        eK.receiverEntity = new List<Entity>() { other };
         subject.entitiesKnown.Add(other);
-        AddEventToEntity(subject, eK);
+        AddEvent(eK);
     }
 
     private static void EntitySawAnother(Entity subject, Entity other, WorldLocation location, string cause)
     {
-        var eK = GetEvent(new List<Entity>() { other }, EventAction.WasAt, location, cause);
-        AddEventToEntity(subject, eK);
+        var eK = GetEvent(new List<Entity>() { subject }, EventAction.Saw, location, cause);
+        eK.receiverEntity = new List<Entity>() { other };
+        AddEvent(eK);
     }
 
     #endregion
 
-    private static void AddEventToEntity(Entity subject, EventKnowledge eK)
-    {
-        subject.memory.Add(eK);
+    //private static void AddEventToEntity(Entity subject, EventKnowledge eK)
+    //{
+    //    subject.memory.Add(eK);
 
-        foreach (var otherSubjects in eK.subjects)
-        {
-            if (subject.EventsPerEntity.ContainsKey(otherSubjects)) subject.EventsPerEntity[otherSubjects].Add(eK);
-            else subject.EventsPerEntity.Add(otherSubjects, new List<EventKnowledge>() { eK });
-        }
+    //    foreach (var otherSubjects in eK.subjects)
+    //    {
+    //        if (subject.EventsPerEntity.ContainsKey(otherSubjects)) subject.EventsPerEntity[otherSubjects].Add(eK);
+    //        else subject.EventsPerEntity.Add(otherSubjects, new List<EventKnowledge>() { eK });
+    //    }
+    //}
+
+    private static void AddEvent(EventKnowledge eK)
+    {
+        Events.Add(eK);
     }
 
     public static string GetEnumerationOfEntity(List<Entity> entitiesIn)
