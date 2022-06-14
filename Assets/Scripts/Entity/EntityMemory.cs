@@ -17,12 +17,12 @@ public class EntityMemory
     }
     #endregion
 
+    #region Lists and dictionaries
     List<Entity> entitiesKnown = new List<Entity>();
-
     Dictionary<Entity, List<EventKnowledge>> eventsPerActorEntity = new Dictionary<Entity, List<EventKnowledge>>();
     Dictionary<Entity, List<EventKnowledge>> eventsPerReceiverEntity = new Dictionary<Entity, List<EventKnowledge>>();
     Dictionary<EventAction, List<EventKnowledge>> eventsPerAction = new Dictionary<EventAction, List<EventKnowledge>>();
-
+    #endregion
 
     public void AddEventToMemory(EventData eventD, HowLearnt howLearnt)
     {
