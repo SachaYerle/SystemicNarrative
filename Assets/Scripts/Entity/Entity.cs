@@ -24,16 +24,18 @@ public class Entity
     {
         this.entityName = entityName;
         this.faction = faction;
-        WorldSimulator.OnTick += DoTick;
-        MoveEntity(null, location, this);
         this.ev = ev;
         ev.name = entityName;
         ev.ent = this;
-        ResetWantsToLeave();
         speed = UnityEngine.Random.Range(.3f, .7f);
         Alive = true;
+        memory = new EntityMemory(ev.name);
 
         NbEntity++;
+
+        WorldSimulator.OnTick += DoTick;
+        MoveEntity(null, location, this);
+        ResetWantsToLeave();
     }
 
     public WorldPoint destination = null;
@@ -53,7 +55,7 @@ public class Entity
     public static Dictionary<WorldPathData, List<PathMovement>> allPathMovements = new Dictionary<WorldPathData, List<PathMovement>>();
     public static List<WorldPathData> pathToCheck = new List<WorldPathData>();
 
-    public List<Entity> entitiesKnown = new List<Entity>();
+    public readonly EntityMemory memory;
 
     private void DoTick(int turn)
     {

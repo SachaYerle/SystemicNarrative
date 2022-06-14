@@ -5,185 +5,154 @@ using UnityEngine;
 
 public static class EventHandler
 {
-    public static List<EventKnowledge> Events = new List<EventKnowledge>();
-    public static List<EntityEncouter> EntityEncouters = new List<EntityEncouter>();
 
-    public class EntityEncouter
+    public static EventData GetEvent(List<Entity> actors, EventAction eventAction, WorldLocation location, string cause)
     {
-        public List<Entity> allEntities = new List<Entity>();
-        public List<EventKnowledge> Events = new List<EventKnowledge>();
-    }
-
-    public static EventKnowledge GetEvent(List<Entity> subjects, EventAction eventAction, WorldLocation location, string cause)
-    {
-        return new EventKnowledge(subjects, eventAction, WorldSimulator.turn, location, cause);
+        return new EventData(actors, eventAction, WorldSimulator.turn, location, cause);
     }
 
 
     #region Entity Meeting
 
-    public static void EntityArrivedAtWorldPoint(List<Entity> subjects, WorldPoint worldPoint, string cause)
+    public static void EntityArrivedAtWorldPoint(List<Entity> actors, WorldPoint worldPoint, string cause)
     {
-        foreach (var habitant in worldPoint.EntitiesIn)
+        foreach (Entity habitant in worldPoint.EntitiesIn)
         {
-            if (!subjects.Contains(habitant)) continue;
-            EntitySawSomeoneArriveInWorldPoint(habitant, subjects, worldPoint, cause);
+            if (!actors.Contains(habitant)) continue;
+            EntitySawSomeoneArriveInWorldPoint(habitant, actors, worldPoint, cause);
         }
         EntityMeeting(worldPoint.EntitiesIn, worldPoint, cause);
     }
 
     public static void EntityKillOther(Entity killer, Entity killed, WorldLocation wl, string cause)
     {
-        var eK = GetEvent(new List<Entity>() { killer }, EventAction.Killed, wl, cause);
-        eK.receiverEntity = new List<Entity>() { killed };
-        AddEventToEntity(killed, eK);
-        AddEventToEntity(killer, eK);
+        EventData eD = GetEvent(new List<Entity>() { killer }, EventAction.Killed, wl, cause);
+        eD.receivers = new List<Entity>() { killed };
+        ProcessEvent(eD);
     }
 
-    public static void EntityLeftWorldPoint(List<Entity> subjects, WorldPoint worldPoint, string cause)
+    public static void EntityLeftWorldPoint(List<Entity> actors, WorldPoint worldPoint, string cause)
     {
-        foreach (var habitant in worldPoint.EntitiesIn)
+        foreach (Entity habitant in worldPoint.EntitiesIn)
         {
-            if (subjects.Contains(habitant)) continue;
-            EntitySawSomeoneLeftWorldPoint(habitant, subjects, worldPoint, cause);
-            foreach (var subject in subjects)
+            if (actors.Contains(habitant)) continue;
+            EntitySawSomeoneLeftWorldPoint(habitant, actors, worldPoint, cause);
+            foreach (Entity actor in actors)
             {
-                EntitySawSomeoneLeftToWorldPoint(habitant, subject, subject.journey[0], cause);
+                EntitySawSomeoneLeftToWorldPoint(habitant, actor, actor.journey[0], cause);
             }
         }
     }
 
-    private static void EntitySawSomeoneArriveInWorldPoint(Entity habitant, List<Entity> subjects, WorldPoint worldPoint, string cause)
+    private static void EntitySawSomeoneArriveInWorldPoint(Entity habitant, List<Entity> actors, WorldPoint worldPoint, string cause)
     {
-        var eK = GetEvent(subjects, EventAction.ArrivedAt, worldPoint, cause);
-        eK.receiverWorldPoint = worldPoint;
-        AddEventToEntity(habitant, eK);
+        EventData eD = GetEvent(actors, EventAction.ArrivedAt, worldPoint, cause);
+        eD.worldPoint = worldPoint;
+        ProcessEvent(eD);
     }
 
-    private static void EntitySawSomeoneLeftWorldPoint(Entity habitant, List<Entity> subjects, WorldPoint worldPoint, string cause)
+    private static void EntitySawSomeoneLeftWorldPoint(Entity habitant, List<Entity> actors, WorldPoint worldPoint, string cause)
     {
-        var eK = GetEvent(subjects, EventAction.Left, worldPoint, cause);
-        eK.receiverWorldPoint = worldPoint;
-        AddEventToEntity(habitant, eK);
+        EventData eD = GetEvent(actors, EventAction.Left, worldPoint, cause);
+        eD.worldPoint = worldPoint;
+        ProcessEvent(eD);
     }
 
-    private static void EntitySawSomeoneLeftToWorldPoint(Entity habitant, Entity subject, WorldPoint worldPoint, string cause)
+    private static void EntitySawSomeoneLeftToWorldPoint(Entity habitant, Entity actor, WorldPoint worldPoint, string cause)
     {
-        var eK = GetEvent(new List<Entity>() { subject }, EventAction.WasGoingTo, worldPoint, cause);
-        eK.receiverWorldPoint = worldPoint;
-        AddEventToEntity(habitant, eK);
+        EventData eD = GetEvent(new List<Entity>() { actor }, EventAction.WasGoingTo, worldPoint, cause);
+        eD.worldPoint = worldPoint;
+        ProcessEvent(eD);
     }
 
-    public static void EntityEncounter(Entity subject, Entity other, WorldLocation location, string cause)
+    public static void EntityEncounter(Entity actor, Entity other, WorldLocation location, string cause)
     {
-        if (!subject.entitiesKnown.Contains(other))
-            EntityFirstMetAnother(subject, other, location, cause);
-        EntitySawAnother(subject, other, location, cause);
+        EntitySawAnother(actor, other, location, cause);
         if (other.journey != null && other.journey.Count > 0)
-            EntityWasGoingTo(subject, other, location, cause, other.journey[0]);
+            EntityWasGoingTo(actor, other, location, cause, other.journey[0]);
     }
 
-    public static void EntityMeeting(List<Entity> subjects, WorldLocation location, string cause)
+    public static void EntityMeeting(List<Entity> entities, WorldLocation location, string cause)
     {
         List<Entity> aliveEntities = new List<Entity>();
         List<Entity> deadEntities = new List<Entity>();
 
-        foreach (var subject in subjects)
+        foreach (Entity actor in entities)
         {
-            if (subject.Alive) aliveEntities.Add(subject);
-            else deadEntities.Add(subject);
+            if (actor.Alive) aliveEntities.Add(actor);
+            else deadEntities.Add(actor);
         }
 
-        if (deadEntities.Count > 0)
+        foreach (Entity actor in entities)
         {
-            EntitiesSawDeadBodies(aliveEntities, deadEntities, location, cause);
-        }
-
-        if (aliveEntities.Count > 1)
-        {
-
-        }
-
-
-        foreach (var subject in subjects)
-        {
-            if (!subject.Alive) continue;
-            foreach (var other in subjects)
+            if (!actor.Alive) continue;
+            foreach (Entity other in entities)
             {
-                if (other == subject) continue;
+                if (other == actor) continue;
 
                 if (!other.Alive)
                 {
-                    EntitySawADeadBody(subject, other, location, cause);
+                    EntitySawADeadBody(actor, other, location, cause);
                 }
                 else
                 {
-                    EntityEncounter(subject, other, location, cause);
+                    EntityEncounter(actor, other, location, cause);
                 }
             }
         }
 
-        for (int i = 0; i < subjects.Count; i++)
+        for (int i = 0; i < entities.Count; i++)
         {
-            Entity subject = subjects[i];
-            if (!subject.Alive) continue;
+            Entity actor = entities[i];
+            if (!actor.Alive) continue;
 
-            for (int j = i + 1; j < subjects.Count; j++)
+            for (int j = i + 1; j < entities.Count; j++)
             {
-                Entity other = subjects[j];
+                Entity other = entities[j];
                 if (!other.Alive) continue;
                 WorldPoint wp = location as WorldPoint;
                 WorldPath path = location as WorldPath;
-                if (wp != null) EntityInteraction.EntityMeetInPoint(subject, other, wp);
-                if (path != null) EntityInteraction.EntityMeetInPath(subject, other, path.wpD);
+                if (wp != null) EntityInteraction.EntityMeetInPoint(actor, other, wp);
+                if (path != null) EntityInteraction.EntityMeetInPath(actor, other, path.wpD);
             }
         }
     }
 
-    private static void EntitySawADeadBody(Entity subject, Entity deadBody, WorldLocation location, string cause)
+    private static void EntitySawADeadBody(Entity actor, Entity deadBody, WorldLocation location, string cause)
     {
-        var eK = GetEvent(new List<Entity>() { deadBody }, EventAction.WasDead, location, cause);
-        AddEventToEntity(subject, eK);
+        EventData eD = GetEvent(new List<Entity>() { deadBody }, EventAction.WasDead, location, cause);
+        ProcessEvent(eD);
     }
 
-    private static void EntityWasGoingTo(Entity subject, Entity other, WorldLocation location, string cause, WorldPoint worldPoint)
+    private static void EntityWasGoingTo(Entity actor, Entity other, WorldLocation location, string cause, WorldPoint worldPoint)
     {
-        var eK = GetEvent(new List<Entity>() { other }, EventAction.WasGoingTo, location, cause);
-        eK.receiverWorldPoint = worldPoint;
-        AddEventToEntity(subject, eK);
+        EventData eD = GetEvent(new List<Entity>() { other }, EventAction.WasGoingTo, location, cause);
+        eD.worldPoint = worldPoint;
+        ProcessEvent(eD);
     }
 
-    private static void EntityFirstMetAnother(Entity subject, Entity other, WorldLocation location, string cause)
+    private static void EntityFirstMetAnother(Entity actor, Entity other, WorldLocation location, string cause)
     {
-        var eK = GetEvent(new List<Entity>() { subject }, EventAction.Met, location, cause);
-        eK.receiverEntity = new List<Entity>() { other };
-        subject.entitiesKnown.Add(other);
-        AddEvent(eK);
+        EventData eD = GetEvent(new List<Entity>() { actor }, EventAction.Met, location, cause);
+        eD.receivers = new List<Entity>() { other };
+        ProcessEvent(eD);
     }
 
-    private static void EntitySawAnother(Entity subject, Entity other, WorldLocation location, string cause)
+    private static void EntitySawAnother(Entity actor, Entity other, WorldLocation location, string cause)
     {
-        var eK = GetEvent(new List<Entity>() { subject }, EventAction.Saw, location, cause);
-        eK.receiverEntity = new List<Entity>() { other };
-        AddEvent(eK);
+        EventData eD = GetEvent(new List<Entity>() { actor }, EventAction.Saw, location, cause);
+        eD.receivers = new List<Entity>() { other };
+        ProcessEvent(eD);
     }
 
     #endregion
 
-    //private static void AddEventToEntity(Entity subject, EventKnowledge eK)
-    //{
-    //    subject.memory.Add(eK);
 
-    //    foreach (var otherSubjects in eK.subjects)
-    //    {
-    //        if (subject.EventsPerEntity.ContainsKey(otherSubjects)) subject.EventsPerEntity[otherSubjects].Add(eK);
-    //        else subject.EventsPerEntity.Add(otherSubjects, new List<EventKnowledge>() { eK });
-    //    }
-    //}
 
-    private static void AddEvent(EventKnowledge eK)
+    private static void ProcessEvent(EventData eD)
     {
-        Events.Add(eK);
+        foreach (Entity actor in eD.actors) { actor.memory.AddEventToMemory(eD, HowLearnt.WasThere); }
+        foreach (Entity receiver in eD.receivers) { receiver.memory.AddEventToMemory(eD, HowLearnt.WasThere); }
     }
 
     public static string GetEnumerationOfEntity(List<Entity> entitiesIn)
