@@ -13,7 +13,7 @@ public class EntityMemory
     }
     public override string ToString()
     {
-        return name +"'s memory";
+        return name + "'s memory";
     }
     #endregion
 
@@ -71,15 +71,16 @@ public class EntityMemory
     }
 
 
-    public List<EventData> GetEventFrom(Entity actor, Entity receiver, EventAction action)
+    public List<EventData> GetEventFrom(List<Entity> actors, List<Entity> receivers, List<EventAction> actions)
     {
         List<List<EventKnowledge>> unfilteredLists = new List<List<EventKnowledge>>();
-        if (eventsPerActorEntity.ContainsKey(actor)) unfilteredLists.Add(eventsPerActorEntity[actor]);
-        if (eventsPerReceiverEntity.ContainsKey(receiver)) unfilteredLists.Add(eventsPerReceiverEntity[receiver]);
-        if (eventsPerAction.ContainsKey(action)) unfilteredLists.Add(eventsPerAction[action]);
+        foreach (Entity actor in actors) { if (eventsPerActorEntity.ContainsKey(actor)) unfilteredLists.Add(eventsPerActorEntity[actor]); }
+        foreach (Entity receiver in receivers) { if (eventsPerReceiverEntity.ContainsKey(receiver)) unfilteredLists.Add(eventsPerReceiverEntity[receiver]); }
+        foreach (EventAction action in actions) { if (eventsPerAction.ContainsKey(action)) unfilteredLists.Add(eventsPerAction[action]); }
         List<EventData> finalList = FilterLists(unfilteredLists);
         return finalList;
     }
+
     #endregion
 
     #region Filters and Utility
@@ -89,7 +90,7 @@ public class EntityMemory
         else dic.Add(key, new List<EventKnowledge>() { ek });
     }
 
-    private static List<EventData> ConvertAndFilter (List<EventKnowledge> originalList)
+    private static List<EventData> ConvertAndFilter(List<EventKnowledge> originalList)
     {
         List<EventData> finalList = new List<EventData>();
         foreach (var ek in originalList)
