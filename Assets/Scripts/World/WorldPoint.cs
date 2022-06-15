@@ -59,7 +59,7 @@ public class WorldPoint : WorldLocation
         {
             Entity entity = EntityGenerator.GenerateEntity(faction, this);
         }
-        EventHandler.EntityMeeting(EntitiesIn, this, $"{ EventHandler.GetEnumerationOfEntity(EntitiesIn)} has spawned in the same town");
+        EventHandler.EntityMeeting(EntitiesIn, this, $"{ UtilitiesF.GetEnumerationOfObjects(EntitiesIn)} has spawned in the same town");
     }
 
     private void SetFaction(Faction faction)

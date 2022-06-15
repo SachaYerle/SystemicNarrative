@@ -6,14 +6,15 @@ using UnityEngine;
 public class EntityMemory
 {
     #region Constructor and ToStringOverride
-    public readonly string name;
-    public EntityMemory(string name)
+    public readonly Entity ent;
+    public EntityMemory(Entity ent)
     {
-        this.name = name;
+        this.ent = ent;
+        entitiesKnown.Add(ent);
     }
     public override string ToString()
     {
-        return name + "'s memory";
+        return ent.entityName + "'s memory";
     }
     #endregion
 
@@ -21,31 +22,44 @@ public class EntityMemory
     List<Entity> entitiesKnown = new List<Entity>();
     Dictionary<Entity, List<EventKnowledge>> eventsPerActorEntity = new Dictionary<Entity, List<EventKnowledge>>();
     Dictionary<Entity, List<EventKnowledge>> eventsPerReceiverEntity = new Dictionary<Entity, List<EventKnowledge>>();
+    Dictionary<Entity, List<EventKnowledge>> eventsPerWitnessEntity = new Dictionary<Entity, List<EventKnowledge>>();
     Dictionary<EventAction, List<EventKnowledge>> eventsPerAction = new Dictionary<EventAction, List<EventKnowledge>>();
     #endregion
 
     public void AddEventToMemory(EventData eventD, HowLearnt howLearnt)
     {
+        if (!ShouldStockEvent(eventD)) return;
         EventKnowledge ek = new EventKnowledge(eventD, howLearnt);
-        foreach (Entity ent in eventD.actors)
-        {
-            CheckOtherEntity(ent);
-            AddEventFromKeyType(ent, ek, ref eventsPerActorEntity);
-        }
-        foreach (Entity ent in eventD.receivers)
-        {
-            CheckOtherEntity(ent);
-            AddEventFromKeyType(ent, ek, ref eventsPerReceiverEntity);
-        }
-        AddEventFromKeyType(eventD.action, ek, ref eventsPerAction);
+        HandleListOfActorInDictionary(eventD.actors, ek, ref eventsPerActorEntity);
+        HandleListOfActorInDictionary(eventD.receivers, ek, ref eventsPerReceiverEntity);
+        HandleListOfActorInDictionary(eventD.witnesses, ek, ref eventsPerWitnessEntity);
+        UtilitiesF.AddObjToListDictionary(eventD.action, ek, ref eventsPerAction);
     }
 
-    private void CheckOtherEntity(Entity ent)
+    private bool ShouldStockEvent(EventData eventD)
+    {
+        bool isOnlyActor = eventD.actors.Count == 1 && eventD.actors[0] == ent;
+        // TODO si opti
+        return true;
+    }
+
+    private void HandleListOfActorInDictionary(List<Entity> entities, EventKnowledge ek, ref Dictionary<Entity, List<EventKnowledge>> dic)
+    {
+        foreach (Entity ent in entities)
+        {
+            CheckOtherEntity(ent, ek.eventD);
+            UtilitiesF.AddObjToListDictionary(ent, ek, ref dic);
+        }
+    }
+
+    private void CheckOtherEntity(Entity ent, EventData eventD)
     {
         if (!entitiesKnown.Contains(ent))
         {
             entitiesKnown.Add(ent);
-            Debug.Log("DO MEET EVENT");
+            ent.memory.entitiesKnown.Add(this.ent);
+            List<Entity> presentEntities = UtilitiesF.MergeList(eventD.actors, eventD.receivers, eventD.witnesses);
+            EventHandler.EntitiesFirstMet(new List<Entity>() { this.ent, ent }, presentEntities, eventD.location, eventD.cause);
         }
     }
 
@@ -61,6 +75,12 @@ public class EntityMemory
     {
         List<EventKnowledge> finalList = new List<EventKnowledge>();
         if (eventsPerReceiverEntity.ContainsKey(receiver)) finalList = eventsPerReceiverEntity[receiver];
+        return ConvertAndFilter(finalList);
+    }
+    public List<EventData> GetEventsAsWitness(Entity witness)
+    {
+        List<EventKnowledge> finalList = new List<EventKnowledge>();
+        if (eventsPerWitnessEntity.ContainsKey(witness)) finalList = eventsPerWitnessEntity[witness];
         return ConvertAndFilter(finalList);
     }
     public List<EventData> GetEventsWithAction(EventAction action)
@@ -84,11 +104,6 @@ public class EntityMemory
     #endregion
 
     #region Filters and Utility
-    private static void AddEventFromKeyType<T>(T key, EventKnowledge ek, ref Dictionary<T, List<EventKnowledge>> dic)
-    {
-        if (dic.ContainsKey(key)) dic[key].Add(ek);
-        else dic.Add(key, new List<EventKnowledge>() { ek });
-    }
 
     private static List<EventData> ConvertAndFilter(List<EventKnowledge> originalList)
     {

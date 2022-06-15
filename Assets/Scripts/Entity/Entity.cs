@@ -20,6 +20,8 @@ public class Entity
 
     public bool Alive { get; private set; }
 
+    public readonly int entityID = 0;
+
     public Entity(string entityName, Faction faction, WorldLocation location, EntityVisual ev)
     {
         this.entityName = entityName;
@@ -29,13 +31,19 @@ public class Entity
         ev.ent = this;
         speed = UnityEngine.Random.Range(.3f, .7f);
         Alive = true;
-        memory = new EntityMemory(ev.name);
+        memory = new EntityMemory(this);
 
+        entityID = NbEntity;
         NbEntity++;
 
         WorldSimulator.OnTick += DoTick;
         MoveEntity(null, location, this);
         ResetWantsToLeave();
+    }
+
+    public override string ToString()
+    {
+        return $"{entityName} ({entityID})";
     }
 
     public WorldPoint destination = null;

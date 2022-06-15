@@ -4,20 +4,21 @@ using UnityEngine;
 
 public class EventData
 {
-    public List<Entity> actors = new List<Entity>();
-    public EventAction action = EventAction.Undefined;
+    public readonly List<Entity> actors;
+    public readonly List<Entity> receivers;
+    public readonly List<Entity> witnesses;
+    public readonly EventAction action;
+    public readonly WorldLocation location = null;
+    public readonly string cause = "";
+    public readonly int turn = 0;
 
-    public int turn = 0;
-    public WorldLocation location = null;
-    public string cause = "";
-
-    public List<Entity> receivers = new List<Entity>();
-    public List<Entity> witnesses = new List<Entity>();
     public WorldPoint worldPoint = null;
 
-    public EventData(List<Entity> actors, EventAction action, int turn, WorldLocation location, string cause)
+    public EventData(List<Entity> actors, List<Entity> receivers, List<Entity> witnesses, EventAction action, int turn, WorldLocation location, string cause)
     {
         this.actors = actors;
+        this.receivers = receivers;
+        this.witnesses = witnesses;
         this.action = action;
         this.turn = turn;
         this.location = location;
@@ -26,14 +27,14 @@ public class EventData
 
     public override string ToString()
     {
-        string eventText = EventHandler.GetEnumerationOfEntity(actors) + " " + action.ToString();
+        string eventText = UtilitiesF.GetEnumerationOfObjects(actors) + " " + action.ToString();
 
         string addedTarget = action switch
         {
-            EventAction.Met => EventHandler.GetEnumerationOfEntity(receivers),
-            EventAction.Saw => EventHandler.GetEnumerationOfEntity(receivers),
+            EventAction.Met => UtilitiesF.GetEnumerationOfObjects(receivers),
+            EventAction.SawEachOther => UtilitiesF.GetEnumerationOfObjects(receivers),
             EventAction.WasGoingTo => worldPoint.locationName,
-            EventAction.Killed => EventHandler.GetEnumerationOfEntity(receivers),
+            EventAction.Killed => UtilitiesF.GetEnumerationOfObjects(receivers),
             EventAction.ArrivedAt => worldPoint.locationName,
             EventAction.Left => worldPoint.locationName,
             EventAction.WasDead => "",
@@ -45,6 +46,8 @@ public class EventData
 
         eventText += $" at turn {turn}.";
 
+        if (cause != "") eventText += " Because " + cause;
+
         return eventText;
     }
 }
@@ -53,7 +56,7 @@ public enum EventAction
 {
     Undefined,
     Met,
-    Saw,
+    SawEachOther,
     WasGoingTo,
     Killed,
     ArrivedAt,

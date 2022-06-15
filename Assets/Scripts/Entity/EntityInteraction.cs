@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class EntityInteraction
@@ -20,9 +21,9 @@ public static class EntityInteraction
 
     private static void EntityKilledOther(Entity killer, Entity killed, WorldLocation wl, string cause)
     {
-        Debug.Log($"{killer.entityName} killed {killed.entityName} because " + cause);
-        EventHandler.EntityKillOther(killer, killed, wl, cause);
-        killed.Die();
+        EventHandler.EntityKillOther(new List<Entity>() { killer }, new List<Entity>() { killed }, wl, cause);
+        killed.Die(); 
+        EventHandler.EntitiesAreDead(new List<Entity>() { killed }, new List<Entity>() { killer }, wl, cause);
     }
 
     public static void EntityMeetInPoint(Entity a, Entity b, WorldPoint wp)
