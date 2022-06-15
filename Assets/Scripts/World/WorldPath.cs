@@ -6,10 +6,6 @@ using UnityEngine;
 public class WorldPath : WorldLocation
 {
     public WorldPathData wpD = null;
-    public SpriteRenderer sp = null;
-
-    public Color pathTakenColor = Color.white;
-    public Color pathEmptyColor = Color.white;
 
     private void Start()
     {
@@ -18,10 +14,6 @@ public class WorldPath : WorldLocation
         transform.localScale = new Vector3(0.1f, dif.magnitude, 1);
         transform.up = dif;
         transform.position = Vector3.Lerp(wpD.pathEndA.transform.position, wpD.pathEndB.transform.position, .5f);
-    }
-    private void Update()
-    {
-        sp.color = EntitiesIn.Count > 0 ? pathTakenColor : pathEmptyColor;
     }
 }
 

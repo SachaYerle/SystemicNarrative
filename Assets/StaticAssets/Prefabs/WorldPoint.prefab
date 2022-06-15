@@ -683,10 +683,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d35cdf36e1ffffc4f8b32fcdea971dc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainSpR: {fileID: 3800210461976051707}
   nameText: {fileID: 6032565690981435890}
   factionText: {fileID: 6047175039193306954}
   nbInText: {fileID: 248546575589024148}
-  mainSpriteRender: {fileID: 3800210461976051707}
   houseRoot: {fileID: 448415938904758044}
 --- !u!1 &3800210461976051705
 GameObject:

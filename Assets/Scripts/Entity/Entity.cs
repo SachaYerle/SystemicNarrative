@@ -54,6 +54,7 @@ public class Entity
     public bool goingToA = true;
     public float distMadeOnPath = 0;
     public float speed;
+    public int timeBeforeDiseappear = 50;
 
     public bool onPath => currPath != null;
     public float pathPercentage => distMadeOnPath / currPath.pathLength;
@@ -74,6 +75,8 @@ public class Entity
                 PathMovement movement = new PathMovement(this, currPath, goingToA, distMadeOnPath, distMadeOnPath);
                 AddMovement(movement);
             }
+            timeBeforeDiseappear--;
+            if (timeBeforeDiseappear <= 0) Disappear();
             return;
         }
 
@@ -185,6 +188,14 @@ public class Entity
         Alive = false;
         DeadEntity++;
         if (RemainingEntity == 1) Debug.LogError("ONLY ONE ENTITY LEFT");
+    }
+
+    public void Disappear()
+    {
+        if (Alive) Debug.LogError("ISNT SUPPOSED TO TRIGGER");
+        MoveEntity(currLocation, null, this);
+        ev.gameObject.SetActive(false);
+        WorldSimulator.OnTick -= DoTick;
     }
 }
 

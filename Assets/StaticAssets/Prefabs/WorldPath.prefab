@@ -129,6 +129,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e55be10980adbce42801c3dfa7b54524, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sp: {fileID: 5760035945215260738}
-  pathTakenColor: {r: 0.7924528, g: 0.71348727, b: 0.48145247, a: 1}
-  pathEmptyColor: {r: 0.6039216, g: 0.6039216, b: 0.6039216, a: 1}
+  mainSpR: {fileID: 5760035945215260738}

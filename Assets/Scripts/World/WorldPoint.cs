@@ -10,7 +10,6 @@ public class WorldPoint : WorldLocation
     public TextMeshPro nameText = null;
     public TextMeshPro factionText = null;
     public TextMeshPro nbInText = null;
-    public SpriteRenderer mainSpriteRender = null;
     public GameObject houseRoot = null;
 
     public Faction faction { get; protected set; }
@@ -44,8 +43,9 @@ public class WorldPoint : WorldLocation
 
     }
 
-    private void Update()
+    protected override void Update()
     {
+        base.Update();
         nbInText.text = EntitiesIn.Count.ToString();
     }
 
